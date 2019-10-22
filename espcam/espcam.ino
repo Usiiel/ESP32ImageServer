@@ -23,9 +23,9 @@
 #include "fb_gfx.h"
 #include "soc/soc.h" //disable brownout problems
 #include "soc/rtc_cntl_reg.h"  //disable brownout problems
-#include "dl_lib.h"
+//#include "dl_lib.h"
 #include "esp_system.h"
-
+#include "camera.h"
 // Unique ID
 char clientID[20];
 
@@ -132,35 +132,14 @@ int imageServerControlPort=62101;
 void PostImage()
 {
   Serial.println("PostImage starting");
-  
-  camera_fb_t * fb = NULL;
-  esp_err_t res = ESP_OK;
-  size_t _jpg_buf_len = 0;
-  uint8_t * _jpg_buf = NULL;
-  
+
+  Camera cam;
   WiFiClient client;
 
-  fb = esp_camera_fb_get();
-  if (!fb) {
-    Serial.println("Camera capture failed");
-    res = ESP_FAIL;
-  } else {
-    if(fb->width > 400){
-      if(fb->format != PIXFORMAT_JPEG){
-        bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
-        esp_camera_fb_return(fb);
-        fb = NULL;
-        if(!jpeg_converted){
-          Serial.println("JPEG compression failed");
-          res = ESP_FAIL;
-        }
-      } else {
-        _jpg_buf_len = fb->len;
-        _jpg_buf = fb->buf;
-      }
-    }
-  }
-  if(res == ESP_OK){
+  cam.capture();
+
+
+  if(cam.Res == ESP_OK){
     Serial.println("Connecting...");
     if (client.connect(imageServerHostname, imageServerHttpPort)) {
       Serial.println("Connected");
@@ -172,10 +151,10 @@ void PostImage()
       client.println(clientID);      
       client.println("Content-Type: image/jpeg");
       client.print("Content-Length: ");
-      client.println(_jpg_buf_len);
+      client.println(cam.JpgBufLen);
       client.println();
       Serial.println("Sending...");
-      client.write((const uint8_t *) _jpg_buf, _jpg_buf_len);
+      client.write((const uint8_t *) cam.JpgBuf, cam.JpgBufLen);
       
       unsigned long timeout = millis();
       while (client.available() == 0) {
@@ -189,14 +168,8 @@ void PostImage()
     else
      Serial.println("Connection failed!");
   }    
-    if(fb){
-      esp_camera_fb_return(fb);
-      fb = NULL;
-      _jpg_buf = NULL;
-    } else if(_jpg_buf){
-      free(_jpg_buf);
-      _jpg_buf = NULL;
-    }
+  cam.release();
+  
      Serial.println("Post done");
 }
 
@@ -239,13 +212,17 @@ void ProcessControlChannel()
     else
     {
       controlChannelClient->print("Client-ID: ");
-      controlChannelClient->println(clientID);      
+      controlChannelClient->println(clientID);
     }
   }
-  if(controlChannelClient->available())
+  while(controlChannelClient->available())
   {
     char ch=(char)controlChannelClient->read();
     cmdBuf[cmdBufPtr++]=ch;
+
+    if(ch==0x0d)
+	continue;
+
     if(ch==0x0a)
     {
       ProcessCommand(cmdBuf,cmdBufPtr-1);

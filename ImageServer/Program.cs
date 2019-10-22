@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading.Tasks;
+using log4net;
+using log4net.Config;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,17 +17,28 @@ namespace ImageServer
 {
     public class Program
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(Program));
+
+        static CommandChannelServer _commandServer = new CommandChannelServer(); 
+
         public static void Main(string[] args)
         {
-            Task.Run(() => SocketServer());
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
-            CreateWebHostBuilder(args).Build().Run();
+            Task.Run(() => _commandServer.StartListening());
+
+            Console.ReadLine();
+
+            //CreateWebHostBuilder(args).Build().Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
 
+
+        /*
         public static void SocketServer()
         {
             Socket listenSocket = new Socket(AddressFamily.InterNetwork,
@@ -32,6 +46,7 @@ namespace ImageServer
                                  ProtocolType.Tcp);
 
             // bind the listening socket to the port
+            Dns.GetHostEntry()
             IPAddress hostIP = (Dns.Resolve(IPAddress.Any.ToString())).AddressList[5];
             IPEndPoint ep = new IPEndPoint(hostIP, 62101);
             listenSocket.Bind(ep);
@@ -56,5 +71,6 @@ namespace ImageServer
                 }
             }
         }
+        */
     }
 }
