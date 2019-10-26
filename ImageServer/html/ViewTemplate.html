@@ -1,0 +1,32 @@
+﻿<html>
+<script>
+
+function refresh(node)
+{
+   var times = 500;
+
+   (function startRefresh()
+   {
+      var address;
+      if(node.src.indexOf('?')>-1)
+       address = node.src.split('?')[0];
+      else
+       address = node.src;
+      node.src = address+"?time="+new Date().getTime();
+
+      setTimeout(startRefresh,times);
+   })();
+
+}
+
+window.onload = function()
+{
+  var node = document.getElementById('img');
+  refresh(node);
+}
+</script>
+
+<body>
+    <img id="img" src="##WWWROOT##/view/##ID##/current.jpg" style="position:absolute;top:0;left:0;height:50%;width:50%" />
+</body>
+</html>

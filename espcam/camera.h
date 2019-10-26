@@ -8,7 +8,8 @@ class Camera
     uint8_t * JpgBuf = NULL;
     esp_err_t Res = ESP_OK;
     bool Log=false;
-    
+
+    void setup();
     void capture(); 
     void release();
     
