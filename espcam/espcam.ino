@@ -47,12 +47,14 @@ void PostImage()
     Serial.println("Connecting...");
     if (client.connect(imageServerHostname, imageServerHttpPort)) {
       Serial.println("Connected");
-      client.println("POST /posts HTTP/1.1");
+      client.println("POST /upload HTTP/1.1");
       client.print("Host: ");
       client.println(imageServerHostname);
       client.println("Cache-Control: no-cache");
       client.print("Client-ID: ");
-      client.println(clientID);      
+      client.println(clientID);
+      client.print("API-Key: ");
+      client.println(IMAGE_SERVER_API_KEY);
       client.println("Content-Type: image/jpeg");
       client.print("Content-Length: ");
       client.println(cam.JpgBufLen);

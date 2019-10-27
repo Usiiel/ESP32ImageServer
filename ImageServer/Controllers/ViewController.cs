@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ImageServer.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 
 namespace ImageServer.Controllers
@@ -10,16 +12,20 @@ namespace ImageServer.Controllers
     public class ViewController : ControllerBase
     {
         IConfiguration _config;
+        ImageStoreService _imageStore;
 
-        public ViewController(IConfiguration config)
+        public ViewController(IConfiguration config, ImageStoreService imageStore)
         {
             _config = config;
+            _imageStore = imageStore;
         }
 
-        [Route("/view/{clientID}/")] 
+        [Route("/view/{clientID}/")]
         public ActionResult<string> GetIndex(string clientID)
         {
-            var html=System.IO.File.ReadAllText("html\\ViewTemplate.html").Replace("##ID##", clientID).Replace("##WWWROOT##", _config["Config:ImageServerWWWRoot"]);
+            Tools.ValidateClientID(clientID);
+
+            var html = System.IO.File.ReadAllText("html"+ Path.DirectorySeparatorChar+"ViewTemplate.html").Replace("##ID##", clientID).Replace("##WWWROOT##", _config["Config:ImageServerWWWRoot"]);
 
             return new ContentResult
             {
@@ -32,9 +38,11 @@ namespace ImageServer.Controllers
         [Route("/view/{clientID}/current.jpg")]
         public ActionResult<string> Get(string clientID)
         {
-            var img=Program.ImageStore.GetImage(clientID);
+            Tools.ValidateClientID(clientID);
 
-            if(img==null)
+            var img = _imageStore.GetImage(clientID);
+
+            if (img == null)
                 return NotFound();
 
             return File(img, "image/jpeg");

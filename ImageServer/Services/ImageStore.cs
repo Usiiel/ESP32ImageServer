@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ImageServer
+namespace ImageServer.Services
 {
-    public class ImageStore
+    public class ImageStoreService
     {
         const int DefaultUploadInterval = 10 * 60 * 1000;
 
@@ -84,8 +84,6 @@ namespace ImageServer
                     return DefaultUploadInterval;
                 }
             }
-
-
         }
     }
 }
