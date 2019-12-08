@@ -1,5 +1,4 @@
-# ESP32ImageServer
-Image server and ESP32-CAM client for uploading images
+# Image server and ESP32-CAM client for uploading images
 
 ESP32-CAM client code for uploading images to server via HTTP PUT.
 
