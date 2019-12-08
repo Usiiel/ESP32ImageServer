@@ -8,4 +8,4 @@ Still work in progress but it seems to work.
 
 TODO: Add authetication, better logging and diagnostics.
 
-![Camera prototype](//OH1TR/ESP32ImageServer/Media/Prototype_image.png)
+![Camera prototype](/Media/Prototype_image.png)
