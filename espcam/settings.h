@@ -1,7 +1,7 @@
 
-#define WIFI_SSID "SSID"
-#define WIFI_PASSWORD "PASSWORD"
-#define IMAGE_SERVER_HOST "HOST"
+#define WIFI_SSID "Wowcitos"
+#define WIFI_PASSWORD "_Wowcito1531!."
+#define IMAGE_SERVER_HOST "broker.growthmonitor.cl"
 #define IMAGE_SERVER_HTTP_PORT 62100
 #define IMAGE_SERVER_CONTROL_PORT 62101
 #define IMAGE_SERVER_API_KEY "ApiKey"
